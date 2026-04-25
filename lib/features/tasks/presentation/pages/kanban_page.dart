@@ -20,13 +20,12 @@ class _KanbanPageState extends State<KanbanPage> {
         KanbanTask(
           id: '1',
           title: 'Описать API задач',
-          subtitle: 'Swagger + примеры ответов',
         ),
-        KanbanTask(id: '2', title: 'Макет канбана', subtitle: null),
-        KanbanTask(id: '3', title: 'Макет канбана 2', subtitle: null),
-        KanbanTask(id: '4', title: 'Макет канбана 3', subtitle: null),
-        KanbanTask(id: '5', title: 'Макет канбана 5', subtitle: null),
-        KanbanTask(id: '6', title: 'Макет канбана 6', subtitle: null),
+        KanbanTask(id: '2', title: 'Макет канбана'),
+        KanbanTask(id: '3', title: 'Макет канбана 2'),
+        KanbanTask(id: '4', title: 'Макет канбана 3'),
+        KanbanTask(id: '5', title: 'Макет канбана 5'),
+        KanbanTask(id: '6', title: 'Макет канбана 6'),
       ],
     ),
     KanbanStage(
@@ -36,7 +35,6 @@ class _KanbanPageState extends State<KanbanPage> {
         KanbanTask(
           id: '3',
           title: 'Виджеты канбан-колонок',
-          subtitle: 'Горизонтальный скролл, карточки',
         ),
       ],
     ),

@@ -38,6 +38,7 @@ dependencies:
   drag_and_drop_lists: ^0.4.2
   get_it: ^9.2.1
   flutter_bloc: ^9.1.1
+  equatable: ^2.0.8
 
 dev_dependencies:
   flutter_test:

@@ -1,6 +1,6 @@
 import 'package:kpi_drive_test/core/dto/paginated_list_dto.dart';
 import 'package:kpi_drive_test/features/tasks/data/models/task_dto.dart';
-import 'package:kpi_drive_test/features/tasks/domain/entities/paginated_list_entity.dart';
+import 'package:kpi_drive_test/core/domain/entities/paginated_list_entity.dart';
 import 'package:kpi_drive_test/features/tasks/domain/entities/task_entity.dart';
 
 extension TaskDtoMapper on TaskDto {
