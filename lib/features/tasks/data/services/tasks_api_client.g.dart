@@ -20,13 +20,28 @@ class _TasksApiClient implements TasksApiClient {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<ApiResponseDto<PaginatedListDto<TaskDto>>> getMoIndicators(
-    Map<String, dynamic> request,
-  ) async {
+  Future<ApiResponseDto<PaginatedListDto<TaskDto>>> getMoIndicators({
+    required String authUserId,
+    required String behaviourKey,
+    required String periodStart,
+    required String periodEnd,
+    required String periodKey,
+    required String requestedMoId,
+    required String withResult,
+    required String responseFields,
+  }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
+    final _data = FormData();
+    _data.fields.add(MapEntry('auth_user_id', authUserId));
+    _data.fields.add(MapEntry('behaviour_key', behaviourKey));
+    _data.fields.add(MapEntry('period_start', periodStart));
+    _data.fields.add(MapEntry('period_end', periodEnd));
+    _data.fields.add(MapEntry('period_key', periodKey));
+    _data.fields.add(MapEntry('requested_mo_id', requestedMoId));
+    _data.fields.add(MapEntry('with_result', withResult));
+    _data.fields.add(MapEntry('response_fields', responseFields));
     final _options = _setStreamType<ApiResponseDto<PaginatedListDto<TaskDto>>>(
       Options(
             method: 'POST',

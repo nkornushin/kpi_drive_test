@@ -13,7 +13,14 @@ abstract class TasksApiClient {
 
   @POST('/indicators/get_mo_indicators')
   @MultiPart()
-  Future<ApiResponseDto<PaginatedListDto<TaskDto>>> getMoIndicators(
-    @PartMap() Map<String, dynamic> request,
-  );
+  Future<ApiResponseDto<PaginatedListDto<TaskDto>>> getMoIndicators({
+    @Part(name: 'auth_user_id') required String authUserId,
+    @Part(name: 'behaviour_key') required String behaviourKey,
+    @Part(name: 'period_start') required String periodStart,
+    @Part(name: 'period_end') required String periodEnd,
+    @Part(name: 'period_key') required String periodKey,
+    @Part(name: 'requested_mo_id') required String requestedMoId,
+    @Part(name: 'with_result') required String withResult,
+    @Part(name: 'response_fields') required String responseFields,
+  });
 }

@@ -9,6 +9,8 @@ import 'package:kpi_drive_test/features/tasks/presentation/bloc/tasks_state.dart
 class TasksBloc extends Bloc<TasksEvent, TasksState> {
   TasksBloc(this._tasksRepository) : super(const TasksState()) {
     on<GetMoIndicatorsRequested>(_onGetMoIndicatorsRequested);
+    on<TaskMoved>(_onTaskMoved);
+    on<StageMoved>(_onStageMoved);
   }
 
   final TasksRepository _tasksRepository;
@@ -58,5 +60,62 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
         ),
       );
     }
+  }
+
+  void _onTaskMoved(
+    TaskMoved event,
+    Emitter<TasksState> emit,
+  ) {
+    final currentStages = state.stages;
+    if (currentStages == null ||
+        event.oldListIndex >= currentStages.length ||
+        event.newListIndex >= currentStages.length) {
+      return;
+    }
+
+    final stages = List<KanbanStageEntity>.from(currentStages);
+
+    final oldTasks = List<TaskEntity>.from(stages[event.oldListIndex].tasks);
+    if (event.oldItemIndex >= oldTasks.length) {
+      return;
+    }
+
+    final movedTask = oldTasks.removeAt(event.oldItemIndex);
+    stages[event.oldListIndex] = KanbanStageEntity(
+      id: stages[event.oldListIndex].id,
+      name: stages[event.oldListIndex].name,
+      order: stages[event.oldListIndex].order,
+      tasks: oldTasks,
+    );
+
+    final newTasks = List<TaskEntity>.from(stages[event.newListIndex].tasks);
+    final targetIndex = event.newItemIndex.clamp(0, newTasks.length);
+    newTasks.insert(targetIndex, movedTask);
+    stages[event.newListIndex] = KanbanStageEntity(
+      id: stages[event.newListIndex].id,
+      name: stages[event.newListIndex].name,
+      order: stages[event.newListIndex].order,
+      tasks: newTasks,
+    );
+
+    emit(state.copyWith(stages: stages));
+  }
+
+  void _onStageMoved(
+    StageMoved event,
+    Emitter<TasksState> emit,
+  ) {
+    final currentStages = state.stages;
+    if (currentStages == null ||
+        event.oldListIndex >= currentStages.length ||
+        event.newListIndex >= currentStages.length) {
+      return;
+    }
+
+    final stages = List<KanbanStageEntity>.from(currentStages);
+    final movedStage = stages.removeAt(event.oldListIndex);
+    stages.insert(event.newListIndex, movedStage);
+
+    emit(state.copyWith(stages: stages));
   }
 }

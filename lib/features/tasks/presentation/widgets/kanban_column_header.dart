@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:kpi_drive_test/features/tasks/presentation/models/kanban_models.dart';
+import 'package:kpi_drive_test/features/tasks/domain/entities/kanban_stage_entity.dart';
 
 class KanbanColumnHeader extends StatelessWidget {
   const KanbanColumnHeader({super.key, required this.stage});
 
-  final KanbanStage stage;
+  final KanbanStageEntity stage;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class KanbanColumnHeader extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              stage.title,
+              stage.name,
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
               ),

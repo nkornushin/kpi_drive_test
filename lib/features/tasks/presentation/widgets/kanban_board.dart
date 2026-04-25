@@ -1,17 +1,21 @@
 import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:kpi_drive_test/features/tasks/presentation/models/kanban_models.dart';
+import 'package:kpi_drive_test/features/tasks/domain/entities/kanban_stage_entity.dart';
+import 'package:kpi_drive_test/features/tasks/presentation/bloc/tasks_bloc.dart';
+import 'package:kpi_drive_test/features/tasks/presentation/bloc/tasks_event.dart';
 
 import 'kanban_column.dart';
 
 class KanbanBoard extends StatefulWidget {
   const KanbanBoard({super.key, required this.stages});
 
-  final List<KanbanStage> stages;
+  final List<KanbanStageEntity> stages;
 
   /// Внешняя ширина слота колонки: [KanbanColumnDragList.contentWidth] + правый отступ.
-  static const double _listWidthWithTrailingGap = KanbanColumnDragList.contentWidth + 12;
+  static const double _listWidthWithTrailingGap =
+      KanbanColumnDragList.contentWidth + 12;
 
   static const EdgeInsets _listPadding = EdgeInsets.only(right: 12);
 
@@ -21,21 +25,6 @@ class KanbanBoard extends StatefulWidget {
 
 class _KanbanBoardState extends State<KanbanBoard> {
   final ScrollController _controller = ScrollController();
-  late List<KanbanStage> _stages;
-
-  @override
-  void initState() {
-    super.initState();
-    _stages = List<KanbanStage>.from(widget.stages);
-  }
-
-  @override
-  void didUpdateWidget(covariant KanbanBoard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.stages != widget.stages) {
-      _stages = List<KanbanStage>.from(widget.stages);
-    }
-  }
 
   @override
   void dispose() {
@@ -49,30 +38,23 @@ class _KanbanBoardState extends State<KanbanBoard> {
     int newItemIndex,
     int newListIndex,
   ) {
-    setState(() {
-      final oldList = List<KanbanTask>.from(_stages[oldListIndex].tasks);
-      final task = oldList.removeAt(oldItemIndex);
-      _stages[oldListIndex] = KanbanStage(
-        id: _stages[oldListIndex].id,
-        title: _stages[oldListIndex].title,
-        tasks: oldList,
-      );
-
-      final newList = List<KanbanTask>.from(_stages[newListIndex].tasks);
-      newList.insert(newItemIndex, task);
-      _stages[newListIndex] = KanbanStage(
-        id: _stages[newListIndex].id,
-        title: _stages[newListIndex].title,
-        tasks: newList,
-      );
-    });
+    context.read<TasksBloc>().add(
+      TaskMoved(
+        oldItemIndex: oldItemIndex,
+        oldListIndex: oldListIndex,
+        newItemIndex: newItemIndex,
+        newListIndex: newListIndex,
+      ),
+    );
   }
 
   void _onListReorder(int oldListIndex, int newListIndex) {
-    setState(() {
-      final stage = _stages.removeAt(oldListIndex);
-      _stages.insert(newListIndex, stage);
-    });
+    context.read<TasksBloc>().add(
+      StageMoved(
+        oldListIndex: oldListIndex,
+        newListIndex: newListIndex,
+      ),
+    );
   }
 
   @override
@@ -136,7 +118,8 @@ class _KanbanBoardState extends State<KanbanBoard> {
                     ],
                   ),
                   children: [
-                    for (final stage in _stages) KanbanColumnDragList.build(stage: stage),
+                    for (final stage in widget.stages)
+                      KanbanColumnDragList.build(stage: stage),
                   ],
                   onItemReorder: _onItemReorder,
                   onListReorder: _onListReorder,

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:kpi_drive_test/features/tasks/presentation/models/kanban_models.dart';
+import 'package:kpi_drive_test/features/tasks/domain/entities/task_entity.dart';
 
 class TaskCard extends StatelessWidget {
   const TaskCard({super.key, required this.task});
 
-  final KanbanTask task;
+  final TaskEntity task;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class TaskCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                task.title,
+                task.name,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w500,
                 ),

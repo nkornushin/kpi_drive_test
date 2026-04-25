@@ -11,5 +11,14 @@ class TasksApiService {
 
   Future<ApiResponseDto<PaginatedListDto<TaskDto>>> getMoIndicators(
     GetMoIndicatorsRequestDto request,
-  ) => _client.getMoIndicators(request.toJson());
+  ) => _client.getMoIndicators(
+    authUserId: request.authUserId,
+    behaviourKey: request.behaviourKey,
+    periodStart: request.periodStart,
+    periodEnd: request.periodEnd,
+    periodKey: request.periodKey,
+    requestedMoId: request.requestedMoId,
+    withResult: request.withResult,
+    responseFields: request.responseFields,
+  );
 }

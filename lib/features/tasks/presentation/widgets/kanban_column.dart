@@ -1,7 +1,7 @@
 import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
 import 'package:flutter/material.dart';
 
-import 'package:kpi_drive_test/features/tasks/presentation/models/kanban_models.dart';
+import 'package:kpi_drive_test/features/tasks/domain/entities/kanban_stage_entity.dart';
 import 'package:kpi_drive_test/features/tasks/presentation/widgets/add_task_widget.dart';
 import 'package:kpi_drive_test/features/tasks/presentation/widgets/kanban_column_header.dart';
 
@@ -16,7 +16,7 @@ abstract final class KanbanColumnDragList {
   static const double listDragHandleHeight = 96;
 
   static DragAndDropList build({
-    required KanbanStage stage,
+    required KanbanStageEntity stage,
   }) {
     return DragAndDropList(
       key: ValueKey(stage.id),
