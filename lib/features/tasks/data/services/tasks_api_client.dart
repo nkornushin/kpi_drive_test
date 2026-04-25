@@ -23,4 +23,16 @@ abstract class TasksApiClient {
     @Part(name: 'with_result') required String withResult,
     @Part(name: 'response_fields') required String responseFields,
   });
+
+  @POST('/indicators/save_indicator_instance_field')
+  @MultiPart()
+  Future<void> saveIndicatorInstanceField({
+    @Part(name: 'period_start') required String periodStart,
+    @Part(name: 'period_end') required String periodEnd,
+    @Part(name: 'period_key') required String periodKey,
+    @Part(name: 'indicator_to_mo_id') required String indicatorToMoId,
+    @Part(name: 'field_name') required List<String> fieldNames,
+    @Part(name: 'field_value') required List<String> fieldValues,
+    @Part(name: 'auth_user_id') required String authUserId,
+  });
 }

@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kpi_drive_test/core/domain/entities/paginated_list_entity.dart';
+import 'package:kpi_drive_test/features/tasks/data/models/get_mo_indicators_request_dto.dart';
+import 'package:kpi_drive_test/features/tasks/data/models/save_indicator_instance_field_request_dto.dart';
 import 'package:kpi_drive_test/features/tasks/domain/entities/kanban_stage_entity.dart';
 import 'package:kpi_drive_test/features/tasks/domain/entities/task_entity.dart';
 import 'package:kpi_drive_test/features/tasks/domain/repositories/tasks_repository.dart';
@@ -19,7 +21,13 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
     GetMoIndicatorsRequested event,
     Emitter<TasksState> emit,
   ) async {
-    emit(state.copyWith(status: TasksStatus.loading, errorMessage: null));
+    emit(
+      state.copyWith(
+        status: TasksStatus.loading,
+        errorMessage: null,
+        lastRequest: event.request,
+      ),
+    );
     try {
       final PaginatedListEntity<TaskEntity> data = await _tasksRepository
           .getMoIndicators(event.request);
@@ -50,6 +58,7 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
           status: TasksStatus.success,
           stages: stages,
           errorMessage: null,
+          lastRequest: event.request,
         ),
       );
     } catch (error) {
@@ -62,12 +71,14 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
     }
   }
 
-  void _onTaskMoved(
+  Future<void> _onTaskMoved(
     TaskMoved event,
     Emitter<TasksState> emit,
-  ) {
+  ) async {
     final currentStages = state.stages;
+    final request = state.lastRequest;
     if (currentStages == null ||
+        request == null ||
         event.oldListIndex >= currentStages.length ||
         event.newListIndex >= currentStages.length) {
       return;
@@ -99,14 +110,23 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
     );
 
     emit(state.copyWith(stages: stages));
+
+    await _saveTask(
+      task: movedTask,
+      stageId: stages[event.newListIndex].id,
+      order: targetIndex + 1,
+      request: request,
+    );
   }
 
-  void _onStageMoved(
+  Future<void> _onStageMoved(
     StageMoved event,
     Emitter<TasksState> emit,
-  ) {
+  ) async {
     final currentStages = state.stages;
+    final request = state.lastRequest;
     if (currentStages == null ||
+        request == null ||
         event.oldListIndex >= currentStages.length ||
         event.newListIndex >= currentStages.length) {
       return;
@@ -117,5 +137,60 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
     stages.insert(event.newListIndex, movedStage);
 
     emit(state.copyWith(stages: stages));
+
+    await _saveStage(
+      stage: movedStage,
+      order: event.newListIndex + 1,
+      request: request,
+    );
+  }
+
+  Future<void> _saveTask({
+    required TaskEntity task,
+    required int stageId,
+    required int order,
+    required GetMoIndicatorsRequestDto request,
+  }) async {
+    await _tasksRepository.saveIndicatorInstanceField(
+      SaveIndicatorInstanceFieldRequestDto(
+        periodStart: request.periodStart,
+        periodEnd: request.periodEnd,
+        periodKey: request.periodKey,
+        indicatorToMoId: task.id.toString(),
+        fields: [
+          SaveIndicatorFieldDto(
+            name: 'parent_id',
+            value: stageId.toString(),
+          ),
+          SaveIndicatorFieldDto(
+            name: 'order',
+            value: order.toString(),
+          ),
+        ],
+        authUserId: request.authUserId,
+      ),
+    );
+  }
+
+  Future<void> _saveStage({
+    required KanbanStageEntity stage,
+    required int order,
+    required GetMoIndicatorsRequestDto request,
+  }) async {
+    await _tasksRepository.saveIndicatorInstanceField(
+      SaveIndicatorInstanceFieldRequestDto(
+        periodStart: request.periodStart,
+        periodEnd: request.periodEnd,
+        periodKey: request.periodKey,
+        indicatorToMoId: stage.id.toString(),
+        fields: [
+          SaveIndicatorFieldDto(
+            name: 'order',
+            value: order.toString(),
+          ),
+        ],
+        authUserId: request.authUserId,
+      ),
+    );
   }
 }
