@@ -11,14 +11,13 @@ class TaskCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Card(
-      color: Color(0xFFEFF0F5),
-      elevation: 0,
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-      child: InkWell(
-        onTap: () {},
-        borderRadius: BorderRadius.circular(10),
+    return MouseRegion(
+      cursor: SystemMouseCursors.grab,
+      child: Card(
+        color: Color(0xFFEFF0F5),
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         child: Container(
           width: double.infinity,
           constraints: const BoxConstraints(minHeight: 60),

@@ -29,29 +29,21 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
       ),
     );
     try {
-      final PaginatedListEntity<TaskEntity> data = await _tasksRepository
-          .getMoIndicators(event.request);
-      final List<int> uniqueParentIds =
-          data.rows.map((task) => task.parentId).toSet().toList()..sort();
+      final PaginatedListEntity<TaskEntity> data = await _tasksRepository.getMoIndicators(event.request);
+      final List<int> uniqueParentIds = data.rows.map((task) => task.parentId).toSet().toList()..sort();
 
-      final List<KanbanStageEntity> stages = uniqueParentIds
-          .asMap()
-          .entries
-          .map((entry) {
-            final int index = entry.key;
-            final int parentId = entry.value;
-            final List<TaskEntity> stageTasks =
-                data.rows.where((task) => task.parentId == parentId).toList()
-                  ..sort((a, b) => a.order.compareTo(b.order));
+      final List<KanbanStageEntity> stages = uniqueParentIds.asMap().entries.map((entry) {
+        final int index = entry.key;
+        final int parentId = entry.value;
+        final List<TaskEntity> stageTasks = data.rows.where((task) => task.parentId == parentId).toList()..sort((a, b) => a.order.compareTo(b.order));
 
-            return KanbanStageEntity(
-              id: parentId,
-              name: 'Stage $parentId',
-              order: index,
-              tasks: stageTasks,
-            );
-          })
-          .toList();
+        return KanbanStageEntity(
+          id: parentId,
+          name: 'Этап $parentId',
+          order: index,
+          tasks: stageTasks,
+        );
+      }).toList();
 
       emit(
         state.copyWith(
@@ -77,10 +69,7 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
   ) async {
     final currentStages = state.stages;
     final request = state.lastRequest;
-    if (currentStages == null ||
-        request == null ||
-        event.oldListIndex >= currentStages.length ||
-        event.newListIndex >= currentStages.length) {
+    if (currentStages == null || request == null || event.oldListIndex >= currentStages.length || event.newListIndex >= currentStages.length) {
       return;
     }
 
@@ -125,10 +114,7 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
   ) async {
     final currentStages = state.stages;
     final request = state.lastRequest;
-    if (currentStages == null ||
-        request == null ||
-        event.oldListIndex >= currentStages.length ||
-        event.newListIndex >= currentStages.length) {
+    if (currentStages == null || request == null || event.oldListIndex >= currentStages.length || event.newListIndex >= currentStages.length) {
       return;
     }
 

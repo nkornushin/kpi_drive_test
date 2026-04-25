@@ -13,7 +13,7 @@ abstract final class KanbanColumnDragList {
   static const double contentWidth = 288;
 
   /// Высота зоны захвата для перестановки колонок (совпадает с блоком заголовка).
-  static const double listDragHandleHeight = 96;
+  static const double listDragHandleHeight = 20;
 
   static DragAndDropList build({
     required KanbanStageEntity stage,
