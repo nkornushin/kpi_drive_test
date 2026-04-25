@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:kpi_drive_test/core/di/dependency_injection.dart';
 import 'package:kpi_drive_test/core/utils/custom_scroll_behavior.dart';
 import 'package:kpi_drive_test/features/tasks/presentation/pages/kanban_page.dart';
 
 void main() {
+  setupDependencies();
   runApp(const MyApp());
 }
 

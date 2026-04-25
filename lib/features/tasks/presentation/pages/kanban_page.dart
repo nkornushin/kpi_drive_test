@@ -1,70 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kpi_drive_test/core/di/dependency_injection.dart';
+import 'package:kpi_drive_test/features/tasks/data/models/get_mo_indicators_request_dto.dart';
+import 'package:kpi_drive_test/features/tasks/presentation/bloc/tasks_bloc.dart';
+import 'package:kpi_drive_test/features/tasks/presentation/bloc/tasks_event.dart';
+import 'package:kpi_drive_test/features/tasks/presentation/bloc/tasks_state.dart';
 
 import 'package:kpi_drive_test/features/tasks/presentation/widgets/kanban_board.dart';
-import 'package:kpi_drive_test/features/tasks/presentation/models/kanban_models.dart';
 
-class KanbanPage extends StatefulWidget {
+class KanbanPage extends StatelessWidget {
   const KanbanPage({super.key});
 
-  @override
-  State<KanbanPage> createState() => _KanbanPageState();
-}
-
-class _KanbanPageState extends State<KanbanPage> {
-  /// Демо-данные; позже можно заменить на состояние из bloc/repository.
-  static const List<KanbanStage> _demoStages = [
-    KanbanStage(
-      id: 'backlog',
-      title: 'Бэклог',
-      tasks: [
-        KanbanTask(
-          id: '1',
-          title: 'Описать API задач',
-          subtitle: 'Swagger + примеры ответов',
-        ),
-        KanbanTask(id: '2', title: 'Макет канбана', subtitle: null),
-        KanbanTask(id: '3', title: 'Макет канбана 2', subtitle: null),
-        KanbanTask(id: '4', title: 'Макет канбана 3', subtitle: null),
-        KanbanTask(id: '5', title: 'Макет канбана 4', subtitle: null),
-      ],
-    ),
-    KanbanStage(
-      id: 'in_progress',
-      title: 'В работе',
-      tasks: [
-        KanbanTask(
-          id: '3',
-          title: 'Виджеты канбан-колонок',
-          subtitle: 'Горизонтальный скролл, карточки',
-        ),
-      ],
-    ),
-    KanbanStage(
-      id: 'review',
-      title: 'Ревью',
-      tasks: [
-        KanbanTask(
-          id: '4',
-          title: 'Проверка на разных ширинах экрана',
-        ),
-      ],
-    ),
-    KanbanStage(
-      id: 'done',
-      title: 'Готово',
-      tasks: [
-        KanbanTask(id: '5', title: 'Структура clean architecture'),
-      ],
-    ),
-  ];
+  static const GetMoIndicatorsRequestDto _request = GetMoIndicatorsRequestDto(
+    periodStart: '2026-04-01',
+    periodEnd: '2026-04-30',
+    periodKey: 'month',
+    requestedMoId: '42',
+    behaviourKey: 'task,kpi_task',
+    withResult: 'false',
+    responseFields: 'name,indicator_to_mo_id,parent_id,order',
+    authUserId: '40',
+  );
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFFF9F8FD),
+    return BlocProvider<TasksBloc>(
+      create: (_) =>
+          getIt<TasksBloc>()..add(const GetMoIndicatorsRequested(_request)),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF9F8FD),
+        body: SafeArea(
+          child: BlocBuilder<TasksBloc, TasksState>(
+            builder: (context, state) {
+              if (state.status == TasksStatus.loading ||
+                  state.status == TasksStatus.initial) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-      body: SafeArea(
-        child: KanbanBoard(stages: _demoStages),
+              if (state.status == TasksStatus.error) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(state.errorMessage ?? 'Ошибка загрузки задач'),
+                  ),
+                );
+              }
+
+              final stages = state.stages ?? const [];
+              return KanbanBoard(stages: stages);
+            },
+          ),
+        ),
       ),
     );
   }
