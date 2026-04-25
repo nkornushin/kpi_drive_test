@@ -20,6 +20,7 @@ class TaskCard extends StatelessWidget {
         onTap: () {},
         borderRadius: BorderRadius.circular(10),
         child: Container(
+          width: double.infinity,
           constraints: const BoxConstraints(minHeight: 60),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Column(

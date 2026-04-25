@@ -25,7 +25,8 @@ class _KanbanPageState extends State<KanbanPage> {
         KanbanTask(id: '2', title: 'Макет канбана', subtitle: null),
         KanbanTask(id: '3', title: 'Макет канбана 2', subtitle: null),
         KanbanTask(id: '4', title: 'Макет канбана 3', subtitle: null),
-        KanbanTask(id: '5', title: 'Макет канбана 4', subtitle: null),
+        KanbanTask(id: '5', title: 'Макет канбана 5', subtitle: null),
+        KanbanTask(id: '6', title: 'Макет канбана 6', subtitle: null),
       ],
     ),
     KanbanStage(

@@ -1,3 +1,4 @@
+import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
 import 'package:flutter/material.dart';
 
 import 'package:kpi_drive_test/features/tasks/presentation/models/kanban_models.dart';
@@ -9,7 +10,10 @@ class KanbanBoard extends StatefulWidget {
 
   final List<KanbanStage> stages;
 
-  static const double _columnWidth = 288;
+  /// Внешняя ширина слота колонки: [KanbanColumnDragList.contentWidth] + правый отступ.
+  static const double _listWidthWithTrailingGap = KanbanColumnDragList.contentWidth + 12;
+
+  static const EdgeInsets _listPadding = EdgeInsets.only(right: 12);
 
   @override
   State<KanbanBoard> createState() => _KanbanBoardState();
@@ -39,13 +43,35 @@ class _KanbanBoardState extends State<KanbanBoard> {
     super.dispose();
   }
 
-  void _onReorder(int oldIndex, int newIndex) {
+  void _onItemReorder(
+    int oldItemIndex,
+    int oldListIndex,
+    int newItemIndex,
+    int newListIndex,
+  ) {
     setState(() {
-      if (newIndex > oldIndex) {
-        newIndex -= 1;
-      }
-      final stage = _stages.removeAt(oldIndex);
-      _stages.insert(newIndex, stage);
+      final oldList = List<KanbanTask>.from(_stages[oldListIndex].tasks);
+      final task = oldList.removeAt(oldItemIndex);
+      _stages[oldListIndex] = KanbanStage(
+        id: _stages[oldListIndex].id,
+        title: _stages[oldListIndex].title,
+        tasks: oldList,
+      );
+
+      final newList = List<KanbanTask>.from(_stages[newListIndex].tasks);
+      newList.insert(newItemIndex, task);
+      _stages[newListIndex] = KanbanStage(
+        id: _stages[newListIndex].id,
+        title: _stages[newListIndex].title,
+        tasks: newList,
+      );
+    });
+  }
+
+  void _onListReorder(int oldListIndex, int newListIndex) {
+    setState(() {
+      final stage = _stages.removeAt(oldListIndex);
+      _stages.insert(newListIndex, stage);
     });
   }
 
@@ -59,15 +85,15 @@ class _KanbanBoardState extends State<KanbanBoard> {
             return Container(
               width: constraints.maxWidth,
               height: constraints.maxHeight,
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
-
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withValues(alpha: 0.5),
                     blurRadius: 10,
-                    offset: Offset(0, 10),
+                    offset: const Offset(0, 10),
                   ),
                 ],
               ),
@@ -75,37 +101,45 @@ class _KanbanBoardState extends State<KanbanBoard> {
                 controller: _controller,
                 thumbVisibility: true,
                 scrollbarOrientation: ScrollbarOrientation.bottom,
-                child: ReorderableListView.builder(
+                child: DragAndDropLists(
                   scrollController: _controller,
-                  scrollDirection: Axis.horizontal,
-                  onReorder: _onReorder,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  itemCount: _stages.length,
-                  buildDefaultDragHandles: false,
-                  proxyDecorator: (child, index, animation) {
-                    return Theme(
-                      data: Theme.of(context).copyWith(
-                        canvasColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                      ),
-                      child: Material(
-                        shadowColor: Colors.transparent,
-                        child: child,
-                      ),
-                    );
-                  },
-                  itemBuilder: (context, index) => Padding(
-                    key: ValueKey(_stages[index].id),
-                    padding: const EdgeInsets.only(right: 12),
-                    child: SizedBox(
-                      width: KanbanBoard._columnWidth,
-                      height: constraints.maxHeight,
-                      child: KanbanColumn(
-                        stage: _stages[index],
-                        index: index,
+                  removeTopPadding: true,
+                  axis: Axis.horizontal,
+                  listWidth: KanbanBoard._listWidthWithTrailingGap,
+                  listPadding: KanbanBoard._listPadding,
+                  listDraggingWidth: KanbanBoard._listWidthWithTrailingGap,
+                  itemDraggingWidth: KanbanColumnDragList.contentWidth,
+                  lastItemTargetHeight: 40,
+                  itemGhostOpacity: 0.25,
+                  itemSizeAnimationDurationMilliseconds: 150,
+                  itemDragOnLongPress: true,
+                  listDragOnLongPress: false,
+                  listDragHandle: DragHandle(
+                    verticalAlignment: DragHandleVerticalAlignment.top,
+                    onLeft: true,
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.grab,
+                      child: SizedBox(
+                        width: KanbanColumnDragList.contentWidth,
+                        height: KanbanColumnDragList.listDragHandleHeight,
+                        child: const ColoredBox(color: Colors.transparent),
                       ),
                     ),
                   ),
+                  itemDecorationWhileDragging: const BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0x33000000),
+                        blurRadius: 12,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  children: [
+                    for (final stage in _stages) KanbanColumnDragList.build(stage: stage),
+                  ],
+                  onItemReorder: _onItemReorder,
+                  onListReorder: _onListReorder,
                 ),
               ),
             );
